@@ -1,10 +1,10 @@
-from functools import total_ordering
-from django.shortcuts import render
+from accounts.forms import OrderForm
+from django.shortcuts import redirect, render
 from .models import Customer, Order, Products
 
 
 def home(request):
-    orders = Order.objects.all()
+    orders = Order.objects.order_by('-date_created')
     customers = Customer.objects.all()
     total_customers = customers.count()
     total_orders = orders.count()
@@ -35,3 +35,37 @@ def customers(request, pk):
         'order_count': order_count,
     }
     return render(request, 'accounts/customers.html',context)
+
+
+def create_order(request,pk):
+    customer = Customer.objects.get(id=pk)
+    form = OrderForm(initial={'customer': customer})
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+
+    context = {'form': form}
+    return render(request, 'accounts/order_form.html', context)
+
+
+def update_order(request,pk):
+    order = Order.objects.get(id=pk)
+    form = OrderForm(instance=order)
+    if request.method == 'POST':
+        form = OrderForm(request.POST, instance=order)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+    context = {'form': form}
+    return render(request, 'accounts/order_form.html', context)
+
+
+def delete_order(request,pk):
+    order = Order.objects.get(id=pk)
+    if request.method == 'POST':
+        order.delete()
+        return redirect('home')
+    context = {'item': order}
+    return render(request, 'accounts/delete.html', context)
