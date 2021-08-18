@@ -6,8 +6,13 @@
             <div class="card card-body">
                 <form action="" method="POST">
                     {% csrf_token %}
-                    {{ form }}
-                    <input class="mt-2" type="submit" name="Submit">
+                    {{ formset.management_form }}
+                    {% for form in formset %}
+                        <br>
+                        {{ form }}
+                        <br>
+                    {% endfor %}
+                    <input class="mt-3 text-success border border-success" type="submit" name="Submit">
                 </form>
             </div>
         </div>
